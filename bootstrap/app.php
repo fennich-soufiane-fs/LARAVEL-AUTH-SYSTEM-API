@@ -13,6 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi();
+        $middleware->validateCsrfTokens(except: [
+            '/register',
+            '/api/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
