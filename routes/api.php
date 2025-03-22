@@ -15,3 +15,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 Route::post('/email/verify/{id}/{hash}', [AuthController::class, 'emailVerify'])->name('verification.verify');
 Route::post('/resend-email-verify', [AuthController::class, 'resendEmailVerificationMail'])->name('auth:sanctum');
+
+
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('web');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('web')->name('password.reset');
