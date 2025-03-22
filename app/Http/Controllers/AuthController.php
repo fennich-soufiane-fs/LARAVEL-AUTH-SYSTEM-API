@@ -17,6 +17,8 @@ class AuthController extends Controller
             'password' => 'required|min:8',
         ]));
 
+        $user->sendEmailVerificationNotification();
+
         return response()->json([
             'message' => 'Successfully registred',
             'user' => $user
@@ -52,5 +54,57 @@ class AuthController extends Controller
     public function logout() {
         Auth::guard('web')->logout();
         return response(status: 204);
+    }
+
+    public function emailVerify($user_id, Request $request) {
+        if(!$request->hasValidSignature()) {
+            return response()->json([
+                'message' => 'Invalid or expired verification code.'
+            ], 400);
+        }
+
+        $user = User::find($user_id);
+
+        if(!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 400);
+        }
+
+        if(!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            return response()->json([
+                'message' => 'Email address successfully verified.',
+                'user' => $user
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Email address already verified.',
+        ]);
+    }
+
+    public function resendEmailVerificationMail(Request $request) {
+        $user_id = $request->input('user_id');
+        $user = User::find($user_id);
+        
+        if(!$user) {
+            return response()->json([
+                'message' => 'User not found.'
+            ], 400);
+        }
+
+        if($user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Email already verified.'
+            ], 400);
+        }
+
+        $user->sendEmailVerficationNotification();
+
+        return response()->json([
+            'message' => 'Email verification link sent to your email address',
+        ]);
+
     }
 }
